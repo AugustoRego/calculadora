@@ -17,7 +17,7 @@
  
   
 <p align="center">
-  <img src="composite.png" width="350"/>  
+  <img src="composite.png" width="100%"/>  
 </p>
  
  
