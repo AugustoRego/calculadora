@@ -4,5 +4,8 @@ public enum Operacao {
   SOMAR,
   SUBTRAIR,
   MULTIPLICAR,
-  DIVIDIR
+  DIVIDIR,
+  PERCENTUAL,
+  RAIZ
+
 }

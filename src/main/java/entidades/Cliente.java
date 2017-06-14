@@ -1,50 +1,47 @@
 package entidades;
 
+import servidor.Servidor;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 
-public class Cliente implements Serializable {
-  private static final long serialVersionUID = -8493115667862067434L;
-  private Operacao operacao;
-  private DataOutputStream envia;
-  private DataInputStream recebe;
+/**
+ * classe responsável por receber e enviar respostas para os clientes
+ */
+public class Cliente implements Runnable {
+    private DataOutputStream enviar;
+    private DataInputStream receber;
+    private Servidor servidor;
 
-  public Cliente(Operacao operacao, DataOutputStream saida, DataInputStream entrada) throws IOException {
-    this.operacao = operacao;
-    envia = saida;
-    recebe = entrada;
-  }
+    public Cliente(DataOutputStream enviar, DataInputStream receber, Servidor servidor) throws IOException {
+        this.enviar = enviar;
+        this.receber = receber;
+        this.servidor = servidor;
+    }
 
+    public void run() {
+        while (true) {
+            try {
+                System.out.println("resposta Recebida ");
+                double resultado = 0;
+                int tipoOperacao = receber.readInt();
+                Operacao operacao = Operacao.values()[tipoOperacao];
 
-  public Operacao getOperacao() {
-    return operacao;
-  }
-
-  
-  public void setOperacao(Operacao operacao) {
-    this.operacao = operacao;
-  }
-
-
-  public DataOutputStream getEnvia() {
-    return envia;
-  }
-
-
-  public DataInputStream getRecebe() {
-    return recebe;
-  }
-
-  
-  
-
-  
-  
-  
-  
-
-
-
+                if (operacao == Operacao.RAIZ) {
+                    double valor1 = receber.readDouble();
+                    resultado =servidor.calcular(operacao, valor1);
+                }else{
+                    double valor1 = receber.readDouble();
+                    double valor2 = receber.readDouble();
+                    resultado =servidor.calcular(operacao, valor1, valor2);
+                }
+                System.out.println("enviar resultado " + resultado);
+                enviar.writeDouble(resultado);
+                enviar.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
