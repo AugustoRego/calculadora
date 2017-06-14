@@ -16,6 +16,8 @@
 |As operações de Porcentagem, raiz quadrada devem ser executadas nos servidores escravos especiais                               |        |
  
   
-
+<p align="center">
+  <img src="composite.png" width="350"/>  
+</p>
  
  
