@@ -15,11 +15,14 @@ import java.util.List;
 public class Servidor implements Runnable {
     private List<ServidorEscravo> servidoresEscravos;
     private ServerSocket servidor;
+    private Log log;
 
     //para criar o servidor é necessário informar a porta
     Servidor(int porta) throws IOException {
         servidor = new ServerSocket(porta);
         servidoresEscravos = new ArrayList<ServidorEscravo>();
+        log = new Log();
+        log.mensagem("Servidor foi Iniciado");
     }
 
 
@@ -28,11 +31,11 @@ public class Servidor implements Runnable {
         //para que o servidor aceite mais de 1 cliente
         while (true) {
             try {
-                System.out.println("aguardando clientes");
                 Socket cliente = servidor.accept();
                 DataInputStream entrada = new DataInputStream(cliente.getInputStream());
                 DataOutputStream saida = new DataOutputStream(cliente.getOutputStream());
                 new Thread(new Cliente(saida, entrada, this)).start();
+                log.mensagem("Cliente conectado "+ cliente.getLocalAddress().getCanonicalHostName());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -56,5 +59,7 @@ public class Servidor implements Runnable {
         return 5;
     }
 
-
+    public Log getLog() {
+        return log;
+    }
 }
