@@ -5,8 +5,6 @@
 
 #### Funcionalidades :
 
-Note that all "planned" work is tentative / best estimate and is subject to changing priorities.
-
 | Feature                                                                                                                        | Status |
 |--------------------------------------------------------------------------------------------------------------------------------|--------|
 |um servidor concorrente principal que receberá requisições via socket e encaminhará as mesmas, via RMI para servidores escravos |        |
