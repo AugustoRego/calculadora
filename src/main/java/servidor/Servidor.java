@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Servidor extends UnicastRemoteObject implements Runnable, RMIInterface {
-    private List<ServidorEscravo> servidoresEspeciais;
+   	private static final long serialVersionUID = -4497401319976778350L;
+	private List<ServidorEscravo> servidoresEspeciais;
     private List<ServidorEscravo> servidoresBasicos;
     private ServerSocket servidor;
     private RoundRobin<ServidorEscravo> rrEspeciais;
@@ -39,6 +40,7 @@ public class Servidor extends UnicastRemoteObject implements Runnable, RMIInterf
 
         log = new Log("Servidor Principal");
         mensagem("Servidor principal(SOCKET) Iniciado na porta:" + porta);
+        
         Util.criarServidorRMI(Util.SERVIDOR_PRINCIPAL_PORT_RMI, "localhost", this);
         mensagem("Servidor principal (RMI) iniciado na porta :" + Util.SERVIDOR_PRINCIPAL_PORT_RMI);
         mensagem("line");

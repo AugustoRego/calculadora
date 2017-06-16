@@ -19,7 +19,9 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Arrays;
 
 public class RodarServidorEscravo extends UnicastRemoteObject implements RMIInterface {
-    private enum TipoServidor {ESPECIAL, BASICO}
+    private static final long serialVersionUID = 2109069677088079020L;
+
+	private enum TipoServidor {ESPECIAL, BASICO}
 
     private ServidorEscravo servidorEscravo;
     private final TipoServidor tipoServidor;

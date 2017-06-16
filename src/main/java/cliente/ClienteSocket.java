@@ -10,12 +10,12 @@ import entidades.Operacao;
 class ClienteSocket   {
     private DataInputStream recebe;//recebe dados do servidor
     private DataOutputStream envia;//envia dados para o servidor
+	private Socket servidor;
 
 
     ClienteSocket( String host, int porta) {
         try {
-            //conecta ao servidor
-            Socket servidor = new Socket(host, porta);
+            servidor = new Socket(host, porta);
             recebe = new DataInputStream(servidor.getInputStream());
             envia = new DataOutputStream(servidor.getOutputStream());
             new Thread(new Recebedor()).start();

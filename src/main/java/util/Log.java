@@ -8,13 +8,15 @@ import java.util.Date;
 
 public class Log extends JFrame {
 
-    private final JTextArea jTextArea = new JTextArea();
+   
+	private static final long serialVersionUID = 7444507275166222624L;
+	private final JTextArea jTextArea = new JTextArea();
 
     public Log(String titulo) {
         jTextArea.setEditable(false);
         setTitle(titulo);
         JScrollPane jScrollPane = new JScrollPane(jTextArea);
-        setBounds(100, 100, 800, 600);
+        setBounds(100, 100, 600, 600);
         getContentPane().setLayout(new BorderLayout());
 
         JPanel contentPanel = new JPanel();

@@ -55,6 +55,7 @@ public class Util {
 
 
     public static String getURLFormat(String host, int porta) {
+        //localhost:8080/calculadora
         return String.format("//%s:%d/%s", host, porta, Util.RMI_SERVICO);
     }
 

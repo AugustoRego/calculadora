@@ -4,7 +4,8 @@ package entidades;
 import java.io.Serializable;
 
 public class ServidorEscravo implements Serializable {
-    private final boolean especial;
+    private static final long serialVersionUID = 6650434615940315445L;
+	private final boolean especial;
     private final int porta;
     private final String host;
 
