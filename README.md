@@ -26,11 +26,11 @@
  #### Servidor Principal
   * é possível informar a porta utilizada pelo socket
   * Inicia o serviço RMI na porta fixa = 1099
-  * abre uma frame de logs
+  * abre um frame de logs
   
   #### Servidor Escravo
-    * è possível informar o tipo do mesmo, sendo ele Especial ou Básico
-    * após informado o tipo, solicitará o apenas host/ip do servidor principal, pois a porta do mesmo é fixa = 1099
+    * é possível informar o tipo do mesmo, sendo ele Especial ou Básico
+    * após informado o tipo, solicitará apenas host/ip do servidor principal, pois a porta do mesmo é fixa = 1099
     * solicitará a porta irá usar
     * abre um frame de logs
  
