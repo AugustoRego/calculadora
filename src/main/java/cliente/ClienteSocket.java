@@ -5,13 +5,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-import javax.swing.JOptionPane;
-
-import entidades.Cliente;
 import entidades.Operacao;
 
-public class ClienteSocket   {
-    private Socket servidor = null;
+class ClienteSocket   {
     private DataInputStream recebe;//recebe dados do servidor
     private DataOutputStream envia;//envia dados para o servidor
 
@@ -19,7 +15,7 @@ public class ClienteSocket   {
     ClienteSocket( String host, int porta) {
         try {
             //conecta ao servidor
-            servidor = new Socket(host, porta);
+            Socket servidor = new Socket(host, porta);
             recebe = new DataInputStream(servidor.getInputStream());
             envia = new DataOutputStream(servidor.getOutputStream());
             new Thread(new Recebedor()).start();
@@ -43,9 +39,6 @@ public class ClienteSocket   {
      */
     class Recebedor implements Runnable {
         public void run() {
-          /**
-           * este while fica sempre em execução, para que seja feito mais de 1 calculo
-           */
             while (true) {
                 try {
                     System.out.println("Aguardando resposta do servidor");

@@ -1,6 +1,7 @@
 package cliente;
 
 import entidades.Operacao;
+import util.Util;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,7 +11,7 @@ public class RodarCliente {
     private static ClienteSocket clienteSocket;
 
     public static void main(String[] args) {
-        setColor();
+        Util.setColor(Color.orange);
         setCliente();
         try {
             calcular();
@@ -32,7 +33,7 @@ public class RodarCliente {
         calcular();
     }
 
-    public static void calcular() throws IOException {
+    private static void calcular() throws IOException {
         Operacao operacao = (Operacao) JOptionPane.showInputDialog(null,
                 "Escolha a Operação",
                 "Atenção: ",
@@ -54,10 +55,6 @@ public class RodarCliente {
     }
 
 
-    private static void setColor() {
-        UIManager.put("OptionPane.background", Color.orange);
-        UIManager.put("Panel.background", Color.orange);
-    }
 
 
 }

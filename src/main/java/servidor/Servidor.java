@@ -2,27 +2,46 @@ package servidor;
 
 import entidades.Cliente;
 import entidades.Operacao;
+import entidades.RMIInterface;
 import entidades.ServidorEscravo;
+import util.Log;
+import util.RoundRobin;
+import util.Util;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Servidor implements Runnable {
-    private List<ServidorEscravo> servidoresEscravos;
+public class Servidor extends UnicastRemoteObject implements Runnable, RMIInterface {
+    private List<ServidorEscravo> servidoresEspeciais;
+    private List<ServidorEscravo> servidoresBasicos;
     private ServerSocket servidor;
+    private RoundRobin<ServidorEscravo> rrEspeciais;
+    private RoundRobin<ServidorEscravo> rrBasicos;
     private Log log;
 
     //para criar o servidor é necessário informar a porta
     Servidor(int porta) throws IOException {
         servidor = new ServerSocket(porta);
-        servidoresEscravos = new ArrayList<ServidorEscravo>();
-        log = new Log();
-        log.mensagem("Servidor foi Iniciado");
+
+        servidoresEspeciais = new ArrayList<>();
+        rrEspeciais = new RoundRobin<>(servidoresEspeciais);
+
+        servidoresBasicos = new ArrayList<>();
+        rrBasicos = new RoundRobin<>(servidoresBasicos);
+
+        log = new Log("Servidor Principal");
+        mensagem("Servidor principal(SOCKET) Iniciado na porta:" + porta);
+        Util.criarServidorRMI(Util.SERVIDOR_PRINCIPAL_PORT_RMI, "localhost", this);
+        mensagem("Servidor principal (RMI) iniciado na porta :" + Util.SERVIDOR_PRINCIPAL_PORT_RMI);
+        mensagem("line");
     }
 
 
@@ -35,7 +54,8 @@ public class Servidor implements Runnable {
                 DataInputStream entrada = new DataInputStream(cliente.getInputStream());
                 DataOutputStream saida = new DataOutputStream(cliente.getOutputStream());
                 new Thread(new Cliente(saida, entrada, this)).start();
-                log.mensagem("Cliente conectado "+ cliente.getLocalAddress().getCanonicalHostName());
+                mensagem("Cliente conectado " + cliente.getLocalAddress().getCanonicalHostName());
+                mensagem("line");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -43,23 +63,92 @@ public class Servidor implements Runnable {
     }
 
 
-    public double calcular(Operacao operacao, double... valor) throws IOException {
-        switch (operacao) {
-            case SOMAR:
-                return valor[0] + valor[1];
-            case DIVIDIR:
-                return valor[0] / valor[1];
-            case SUBTRAIR:
-                return valor[0] - valor[1];
-            case RAIZ:
-                return Math.sqrt(valor[0]);
-            case PERCENTUAL:
-                return (valor[0]*100)/valor[1];
+    @Override
+    public double calcular(Operacao operacao, double... valor) throws Exception {
+        double resultado;
+        //se não existir nenhum servidor escravo registrado. O Servidor principal faz o calculo
+        if (servidoresEspeciais.isEmpty() && servidoresBasicos.isEmpty()) {
+            mensagem("Não Existe Nenhum Servidor Escravo Cadastrado");
+            mensagem("O Servidor Está Calculando");
+            resultado = Util.calcular(operacao, valor);
+            mensagem("Resultado: " + resultado);
+            mensagem("line");
+            return resultado;
         }
-        return 5;
+
+        mensagem("Tipo de Operação: (" + operacao.toString() + ") Procurando Servidor (" + Util.getTipoServidor(operacao.isServidorEspecial()) + ")");
+        ServidorEscravo servidorEscravo = procurarServidor(operacao);
+
+        try {
+            mensagem("Servidor Escravo Encontrado : " + servidorEscravo.getHost() + " porta (" + servidorEscravo.getPorta() + ")");
+            RMIInterface rmiEscravo = getRMIServidorEscravo(servidorEscravo);
+            resultado = rmiEscravo.calcular(operacao, valor);
+            mensagem("Resultado: " + resultado);
+            mensagem("line");
+            return resultado;
+        } catch (Exception e) {
+            mensagem("Falha ao Conectar com o servidor escravo  porta (" + servidorEscravo.getPorta() + ") host (" + servidorEscravo.getHost() + ")");
+            mensagem("removendo Servidor da lista");
+            removeServidorEscravo(servidorEscravo);
+            mensagem("reconectando...");
+            mensagem("line");
+            //inicia novamente o método
+            resultado = calcular(operacao, valor);
+        }
+        return resultado;
     }
 
-    public Log getLog() {
-        return log;
+    private ServidorEscravo getServidorEscravo(boolean especial) {
+        if (especial) {
+            return rrEspeciais.iterator().next();
+        } else {
+            return rrBasicos.iterator().next();
+        }
+    }
+
+
+    private void removeServidorEscravo(ServidorEscravo servidorEscravo) {
+        if (servidorEscravo.isEspecial()) {
+            servidoresEspeciais.remove(servidorEscravo);
+        } else {
+            servidoresBasicos.remove(servidorEscravo);
+        }
+    }
+
+
+    private ServidorEscravo procurarServidor(Operacao operacao) {
+
+        ServidorEscravo servidorEscravo = getServidorEscravo(operacao.isServidorEspecial());
+        //se não encontrar um servidor especial tenta encontrar um servidor basico
+        // e virse e versa
+        if (servidorEscravo == null) {
+            mensagem("Servidor (" + Util.getTipoServidor(operacao.isServidorEspecial()) + ") não Encontrado Procurando Servidor (" + Util.getTipoServidor(!operacao.isServidorEspecial()) + ")");
+            servidorEscravo = getServidorEscravo(!operacao.isServidorEspecial());
+        }
+        return servidorEscravo;
+    }
+
+
+    private RMIInterface getRMIServidorEscravo(ServidorEscravo servidorEscravo) throws Exception {
+        return (RMIInterface) Naming.lookup(Util.getURLFormat(servidorEscravo.getHost(), servidorEscravo.getPorta()));
+    }
+
+
+    @Override
+    public void addServidorEscravo(ServidorEscravo servidorEscravo) throws RemoteException {
+        if (servidorEscravo.isEspecial()) {
+            servidoresEspeciais.add(servidorEscravo);
+        } else {
+            servidoresBasicos.add(servidorEscravo);
+        }
+        mensagem("Servidor Escravo Adicionado - host:(" + servidorEscravo.getHost() + ") porta:(" + servidorEscravo.getPorta() + ") Tipo: " + (Util.getTipoServidor(servidorEscravo.isEspecial())));
+        mensagem("Total de Servidor(es) Escravo(s) Especiais : " + servidoresEspeciais.size());
+        mensagem("Total de Servidor(es) Escravo(s) Básicos   : " + servidoresBasicos.size());
+        mensagem("line");
+    }
+
+
+    private void mensagem(String msg) {
+        log.mensagem(msg);
     }
 }
