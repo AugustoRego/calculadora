@@ -28,11 +28,11 @@
   * Inicia o serviço RMI na porta fixa = 1099
   * abre um frame de logs
   
-  #### Servidor Escravo
-    * é possível informar o tipo do mesmo, sendo ele Especial ou Básico
-    * após informado o tipo, solicitará apenas host/ip do servidor principal, pois a porta do mesmo é fixa = 1099
-    * solicitará a porta irá usar
-    * abre um frame de logs
+ #### Servidor Escravo
+  * é possível informar o tipo do mesmo, sendo ele Especial ou Básico
+  * após informado o tipo, solicitará apenas host/ip do servidor principal, pois a porta do mesmo é fixa = 1099
+  * solicitará a porta irá usar
+  * abre um frame de logs
  
  #### Cliente
   * solicitará o host/ip do servidor principal
@@ -50,4 +50,9 @@
   * 1- iniciar o Servidor-Principal.jar
   * 2- iniciar o Servidor-Escravo.jar (quantos desejar)
   * 3- iniciar o Cliente.jar ( quantos desejar)
+  
+  ### Referencias
+  * [Round Robin](https://imasters.com.br/banco-de-dados/simplicidade-e-importancia-round-robin-como-tecnica-de-balanceamento/?trace=1519021197&source=single)
+  * [Java RMI](http://docs.oracle.com/javase/7/docs/technotes/guides/rmi/hello/hello-world.html)
+  * [Java Socket](https://www.google.com.br/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0ahUKEwjdx6bGpsLUAhVBI5AKHQCGAqIQFggiMAA&url=https%3A%2F%2Fwww.caelum.com.br%2Fapostila-java-orientacao-objetos%2Fapendice-sockets%2F&usg=AFQjCNH4BySB7boDWjlaq2Y2H3DgD4esMw)
   
